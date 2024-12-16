@@ -7,3 +7,5 @@ export interface TBooking {
   bookingStatus: 'pending' | 'Paid' | 'cancelled'
   totalPrice: number
 }
+
+

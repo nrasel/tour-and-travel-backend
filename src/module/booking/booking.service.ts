@@ -12,7 +12,7 @@ const createBooking = async (payload: TBooking): Promise<TBooking> => {
     const requiredTour = await Tour.findById(tour)
 
     if (!requiredTour) {
-      throw new Error('Tour notfound')
+      throw new Error('Tour not found')
     }
 
     const totalPrice = requiredTour.price * bookedSlots
@@ -43,6 +43,15 @@ const createBooking = async (payload: TBooking): Promise<TBooking> => {
     throw error
   }
 }
+
+/*
+ *Boking using transaction roll back
+ *
+ * ooking cancel-booking model
+ *
+ * Tour AvailableSeats=availableSeats+BookedSlot-Tour Model
+ */
+
 export const bookingService = {
   createBooking,
 }
