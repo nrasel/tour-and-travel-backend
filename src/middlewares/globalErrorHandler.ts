@@ -1,30 +1,32 @@
 import { NextFunction, Request, Response } from 'express'
-import { StatusCodes } from 'http-status-codes'
 import mongoose from 'mongoose'
+import { handleCastError } from '../helpers/handleCastError'
+import { handlerDuplicateError } from '../helpers/handleDuplicateError'
+import { handleGenericError } from '../helpers/handleGenericError'
+import { handleValidationError } from '../helpers/handleValidationError'
+import { handlerZodError } from '../helpers/handleZodError'
 
-type TErrorResponse = {
-  success: boolean
-  message: string
-  error: any
-}
+// type TErrorResponse = {
+//   success: boolean
+//   message: string
+//   error: any
+// }
 
 export const globalErrorHandler = (
-  err: TErrorResponse,
+  err: any,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  if (err instanceof mongoose.Error.CastError) {
-    res.status(StatusCodes.BAD_REQUEST).json({
-      success: false,
-      message: err.message,
-      error: err,
-    })
+  if (err && err.name === 'ZodError') {
+    handlerZodError(err, res)
+  } else if (err instanceof mongoose.Error.CastError) {
+    handleCastError(err, res)
+  } else if (err instanceof mongoose.Error.ValidationError) {
+    handleValidationError(err, res)
+  } else if (err.code && err.code === 11000) {
+    handlerDuplicateError(err, res)
   } else if (err instanceof Error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: err.message,
-      error: err,
-    })
+    handleGenericError(err, res)
   }
 }

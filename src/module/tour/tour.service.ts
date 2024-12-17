@@ -8,6 +8,7 @@ const createTour = async (payload: TTour) => {
 }
 
 const getTours = async (query: Record<string, unknown>) => {
+
   // const queryObj = { ...query }
 
   // const searchTerm = query?.searchTerm || ''
@@ -29,7 +30,7 @@ const getTours = async (query: Record<string, unknown>) => {
   //     { startLocation: { $regex: searchTerm, $options: 'i' } },
   //     { locations: { $regex: searchTerm, $options: 'i' } },
   //   ],
-  // // })
+  // })
   // const searchQuery = Tour.find({
   //   $or: searchableFields.map((field) => ({
   //     [field]: { $regex: searchTerm, $options: 'i' },
@@ -41,7 +42,10 @@ const getTours = async (query: Record<string, unknown>) => {
     .filter()
     .sort()
     .paginate()
-    .select()
+    .fields()
+
+  const result = await tours.modelQuery
+  return result
 
   // const filterQuery = searchQuery.find(queryObj)
 
@@ -68,9 +72,6 @@ const getTours = async (query: Record<string, unknown>) => {
   // }
 
   // const result = await sortQuery.select(fields)
-
-  const result = await tours.modelQuery
-  return result
 }
 
 const getSingleTours = async (id: string) => {

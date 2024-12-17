@@ -1,4 +1,6 @@
+import bcrypt from 'bcrypt'
 import { model, Schema } from 'mongoose'
+import config from '../../config'
 import { TUser } from './user.interface'
 
 const userSchema = new Schema<TUser>({
@@ -8,10 +10,16 @@ const userSchema = new Schema<TUser>({
     minlength: 3,
     maxlength: 50,
   },
+  password: {
+    type: String,
+    required: [true, 'Please enter your password'],
+    select: false,
+  },
   age: {
     type: Number,
-    required: [true, 'Please enter your age'],
+    // required: [true, 'Please enter your age'],
   },
+
   email: {
     type: String,
     required: [true, 'Please enter your email'],
@@ -37,14 +45,22 @@ const userSchema = new Schema<TUser>({
     enum: ['active', 'inactive'],
     message: '{VALUE} is not valid, please provide valid status',
     required: true,
+    default: 'active',
   },
 })
 
-// hook
-// userSchema.pre('find', function (this, next) {
-//   this.find({ userStatus: { $eq: 'active' } })
-//   next()
-// })
+userSchema.pre('save', async function (next) {
+  const user = this
+  user.password = await bcrypt.hash(
+    user.password,
+    Number(config.bcrypt_salt_round)
+  )
+  next()
+})
+
+userSchema.post('save', function (doc, next) {
+  ;(doc.password = ''), next()
+})
 
 const User = model<TUser>('User', userSchema)
 export default User

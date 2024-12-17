@@ -10,12 +10,14 @@ class QueryBuilder<T> {
 
   search(searchableFields: string[]) {
     const searchTerm = this?.query?.searchTerm
-    this.modelQuery = this.modelQuery.find({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      $or: searchableFields.map((field: any) => ({
-        [field]: { $regex: searchTerm, $options: 'i' },
-      })),
-    } as FilterQuery<T>)
+    if (searchTerm) {
+      this.modelQuery = this.modelQuery.find({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        $or: searchableFields.map((field: any) => ({
+          [field]: { $regex: searchTerm, $options: 'i' },
+        })),
+      } as FilterQuery<T>)
+    }
 
     return this
   }
@@ -65,7 +67,7 @@ class QueryBuilder<T> {
     return this
   }
 
-  select() {
+  fields() {
     let fields = '-__v'
 
     if (this?.query?.fields) {
